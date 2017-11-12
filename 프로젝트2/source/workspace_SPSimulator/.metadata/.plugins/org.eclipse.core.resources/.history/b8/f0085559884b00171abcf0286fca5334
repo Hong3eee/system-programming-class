@@ -1,0 +1,451 @@
+import java.awt.Dimension;
+import java.awt.FileDialog;
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Vector;
+
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+
+public class VisualSimulator_R extends JFrame implements VisualSimulator{
+
+	public JPanel jPanel = null;
+	public JLabel [] label = new JLabel [30];
+	public JTextField filename = null;
+	public JButton fileopen = null;
+	public JTextField programName = null;
+	public JTextField startAddress = null;
+	public JTextField programLength = null;
+	public JTextField firstInstruction = null;
+	public JTextField startAddress2 = null;
+	public JTextField targetAddress = null;
+	public JTextField currentDevice = null;
+	
+	public JTextField ARegDec = null;
+	public JTextField XRegDec = null;
+	public JTextField LRegDec = null;
+	public JTextField PCRegDec = null;
+	public JTextField ARegHex = null;
+	public JTextField XRegHex = null;
+	public JTextField LRegHex = null;
+	public JTextField PCRegHex = null;
+	public JTextField SWReg = null;
+	
+	public JTextField BRegDec = null;
+	public JTextField SRegDec = null;
+	public JTextField TRegDec = null;
+	public JTextField BRegHex = null;
+	public JTextField SRegHex = null;
+	public JTextField TRegHex = null;
+	public JTextField FReg = null;
+	
+	public JScrollPane instScroll = null;
+	public JScrollPane logScroll = null;
+	public JList jList = null;
+	public JButton stepOneBtn = null;
+	public JButton stepAllBtn = null;
+	public JButton Exit = null;
+	public JFileChooser open_obj = null;
+	public int index;
+	public boolean finish;
+	public JList logList = null;
+	
+	ResourceManager_R rMgr = null;
+	SicSimulator_R simulator=null;
+	public File objectFile = null;
+	public VisualSimulator_R() {
+		super();
+		initjPanel();
+	}
+	
+	public void initjPanel() {
+		label[0] = new JLabel();
+		label[0].setBounds(new Rectangle(11, 15, 65, 25));
+		label[0].setText("File Name");
+		
+		label[1] = new JLabel();
+		label[1].setBounds(new Rectangle(11, 55, 135, 25));
+		label[1].setFont(new Font("Dialog", Font.BOLD, 14));
+		label[1].setText("H (Header Record)");
+		
+		label[2] = new JLabel();
+		label[2].setBounds(new Rectangle(11, 86, 92, 25));
+		label[2].setText("Program Name");
+		
+		label[3] = new JLabel();
+		label[3].setBounds(new Rectangle(11, 115, 200, 33));
+		label[3].setText("<HTML>Start Address of<br> Object Program</HTML>");
+		
+		label[4] = new JLabel();
+		label[4].setText("Length of Program");
+		label[4].setLocation(new Point(11, 150));
+		label[4].setSize(new Dimension(109, 25));
+		
+		label[5] = new JLabel();
+		label[5].setBounds(new Rectangle(237, 55, 109, 25));
+		label[5].setFont(new Font("Dialog", Font.BOLD, 14));
+		label[5].setText("E (End Record)");
+		
+		label[6] = new JLabel();
+		label[6].setBounds(new Rectangle(237, 86, 159, 33));
+		label[6].setText("<HTML>Address of First Instruction<br>in Object Program</HTML>");
+	
+		label[7] = new JLabel();
+		label[7].setBounds(new Rectangle(237, 130, 160, 25));
+		label[7].setText("Start Address in Memory");
+	
+		label[8] = new JLabel();
+		label[8].setBounds(new Rectangle(237, 160, 93, 25));
+		label[8].setText("Target Address");
+		
+		label[9] = new JLabel();
+		label[9].setBounds(new Rectangle(11, 180, 105, 25));
+		label[9].setFont(new Font("Dialog", Font.BOLD, 14));
+		label[9].setText("Register");
+
+		label[10] = new JLabel();
+		label[10].setBounds(new Rectangle(70, 205, 38, 25));
+		label[10].setText("Dec");
+
+		label[11] = new JLabel();
+		label[11].setBounds(new Rectangle(140, 205, 38, 25));
+		label[11].setText("Hex");
+		
+		label[12] = new JLabel();
+		label[12].setBounds(new Rectangle(11, 235, 38, 25));
+		label[12].setText("A(#0)");
+
+		label[13] = new JLabel();
+		label[13].setBounds(new Rectangle(11, 265, 38, 25));
+		label[13].setText("X(#1)");
+		
+		label[14] = new JLabel();
+		label[14].setBounds(new Rectangle(11, 295, 38, 25));
+		label[14].setText("L(#2)");
+		
+		label[15] = new JLabel();
+		label[15].setBounds(new Rectangle(11, 325, 38, 25));
+		label[15].setText("PC(#8)");
+		
+		label[16] = new JLabel();
+		label[16].setBounds(new Rectangle(11, 355, 46, 25));
+		label[16].setText("SW(#9)");
+		
+		label[17] = new JLabel();
+		label[17].setBounds(new Rectangle(11, 388, 155, 25));
+		label[17].setFont(new Font("Dialog", Font.BOLD, 14));
+		label[17].setText("Register(for XE)");
+		
+		label[18] = new JLabel();
+		label[18].setBounds(new Rectangle(70, 413, 38, 25));
+		label[18].setText("Dec");
+
+		label[19] = new JLabel();
+		label[19].setBounds(new Rectangle(140, 413, 38, 25));
+		label[19].setText("Hex");
+		
+		
+		label[20] = new JLabel();
+		label[20].setBounds(new Rectangle(11, 443, 38, 25));
+		label[20].setText("B(#3)");
+		
+		label[21] = new JLabel();
+		label[21].setBounds(new Rectangle(11, 473, 38, 25));
+		label[21].setText("S(#4)");
+	
+		label[22] = new JLabel();
+		label[22].setBounds(new Rectangle(11, 503, 38, 25));
+		label[22].setText("T(#5)");
+		
+		label[23] = new JLabel();
+		label[23].setBounds(new Rectangle(11, 533, 38, 25));
+		label[23].setText("F(#6)");
+		
+		label[24] = new JLabel();
+		label[24].setBounds(new Rectangle(237, 250, 121, 25));
+		label[24].setFont(new Font("Dialog", Font.BOLD, 14));
+		label[24].setText("Instructions");
+		
+		label[25] = new JLabel();
+		label[25].setBounds(new Rectangle(11, 563, 46, 25));
+		label[25].setFont(new Font("Dialog", Font.BOLD, 14));
+		label[25].setText("LOG");
+		
+		label[26] = new JLabel();
+		label[26].setBounds(new Rectangle(380, 230, 150, 25));
+		label[26].setText("Current Using Device");
+		
+		filename = new JTextField();
+		filename.setBounds(new Rectangle(77, 12, 180, 22));
+
+		fileopen = new JButton();
+		fileopen.setBounds(new Rectangle(259, 15, 79, 18));
+		fileopen.setText("Open");
+		fileopen.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				final FileDialog fd = new FileDialog((JFrame)getParent(), "File open!", FileDialog.LOAD);
+				fd.setVisible(true);
+
+				if(fd.getDirectory()!= null)
+				{
+					rMgr = new ResourceManager_R();
+					objectFile = new File(fd.getDirectory()+fd.getFile());
+					stepOneBtn.setEnabled(true);
+					stepAllBtn.setEnabled(true);
+				
+					initialize(objectFile, rMgr);
+				}
+			}
+		});
+		programName = new JTextField();
+		programName.setBounds(new Rectangle(128, 86, 81, 22));
+	
+		startAddress = new JTextField();
+		startAddress.setBounds(new Rectangle(128, 120, 81, 22));
+		
+		programLength = new JTextField();
+		programLength.setBounds(new Rectangle(128, 150, 81, 22));
+		
+		firstInstruction = new JTextField();
+		firstInstruction.setBounds(new Rectangle(401, 95, 85, 22));
+	
+		startAddress2 = new JTextField();
+		startAddress2.setBounds(new Rectangle(401, 130, 85, 22));
+		
+		targetAddress = new JTextField();
+		targetAddress.setBounds(new Rectangle(401, 160, 85, 22));
+		
+		currentDevice = new JTextField();
+		currentDevice.setBounds(new Rectangle(401, 258, 85, 22));
+
+		
+		ARegDec = new JTextField();
+		ARegDec.setBounds(new Rectangle(70, 235, 60, 22));
+		
+		XRegDec = new JTextField();
+		XRegDec.setBounds(new Rectangle(70, 265, 60, 22));
+		
+		LRegDec = new JTextField();
+		LRegDec.setBounds(new Rectangle(70, 295, 60, 22));
+		
+		PCRegDec = new JTextField();
+		PCRegDec.setBounds(new Rectangle(70, 325, 60, 22));
+		
+		ARegHex = new JTextField();
+		ARegHex.setBounds(new Rectangle(140, 235, 60, 22));
+		
+		XRegHex = new JTextField();
+		XRegHex.setBounds(new Rectangle(140, 265, 60, 22));
+		 
+		LRegHex = new JTextField();
+		LRegHex.setBounds(new Rectangle(140, 295, 60, 22));
+		
+		PCRegHex = new JTextField();
+		PCRegHex.setBounds(new Rectangle(140, 325, 60, 22));
+		
+		SWReg = new JTextField();
+		SWReg.setBounds(new Rectangle(70, 355, 130, 22));
+	
+		
+		BRegDec = new JTextField();
+		BRegDec.setBounds(new Rectangle(70, 443, 60, 22));
+		
+		SRegDec = new JTextField();
+		SRegDec.setBounds(new Rectangle(70, 473, 60, 22));
+		
+		TRegDec = new JTextField();
+		TRegDec.setBounds(new Rectangle(70, 503, 60, 22));
+			
+		BRegHex = new JTextField();
+		BRegHex.setBounds(new Rectangle(140, 443, 60, 22));
+		
+		SRegHex = new JTextField();
+		SRegHex.setBounds(new Rectangle(140, 473, 60, 22));
+		
+		TRegHex = new JTextField();
+		TRegHex.setBounds(new Rectangle(140, 503, 60, 22));
+		
+		FReg = new JTextField();
+		FReg.setBounds(new Rectangle(70, 533, 130, 22));
+	
+		jList = new JList();
+		logList = new JList();
+		
+		instScroll = new JScrollPane();
+		instScroll.setBounds(new Rectangle(237, 288, 124, 260));
+		instScroll.setViewportView(jList);
+
+		stepOneBtn = new JButton();
+		stepOneBtn.setBounds(new Rectangle(375, 370, 131, 23));
+		stepOneBtn.setEnabled(false);
+		stepOneBtn.setText("execute(1 step)");
+		stepOneBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				oneStep();;
+			}
+		});
+
+		stepAllBtn = new JButton();
+		stepAllBtn.setBounds(new Rectangle(375, 410, 131, 23));
+		stepAllBtn.setEnabled(false);
+		stepAllBtn.setText("execute(All)");
+		stepAllBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				allStep();
+			}
+		});
+
+		Exit = new JButton();
+		Exit.setBounds(new Rectangle(375, 462, 131, 23));
+		Exit.setText("Exit");
+		Exit.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				System.exit(0);
+			}
+		});
+		
+		logScroll = new JScrollPane();
+		logScroll.setBounds(new Rectangle(11, 590, 501, 170));
+		logScroll.setViewportView(logList);
+		
+		////////////////////////////////////////////////////////
+		
+		jPanel = new JPanel();
+		jPanel.setLayout(null);
+		for(int i =0;i<27;i++){
+			jPanel.add(label[i], null);
+		}
+		
+		jPanel.add(filename,null);
+		jPanel.add(fileopen,null);
+		jPanel.add(programName,null);
+		jPanel.add(startAddress,null);
+		jPanel.add(programLength,null);
+		jPanel.add(firstInstruction,null);
+		jPanel.add(startAddress2,null);
+		jPanel.add(targetAddress,null);
+		jPanel.add(currentDevice,null);
+		
+		jPanel.add(ARegDec,null);
+		jPanel.add(XRegDec,null);
+		jPanel.add(LRegDec,null);
+		jPanel.add(PCRegDec,null);
+		jPanel.add(ARegHex,null);
+		jPanel.add(XRegHex,null);
+		jPanel.add(LRegHex,null);
+		jPanel.add(PCRegHex,null);
+		jPanel.add(SWReg,null);
+		
+		jPanel.add(BRegDec,null);
+		jPanel.add(SRegDec,null);
+		jPanel.add(TRegDec,null);
+		jPanel.add(BRegHex,null);
+		jPanel.add(SRegHex,null);
+		jPanel.add(TRegHex,null);
+		jPanel.add(FReg,null);
+
+		jPanel.add(instScroll, null);
+		jPanel.add(logScroll, null);
+		jPanel.add(stepOneBtn, null);
+		jPanel.add(stepAllBtn, null);
+		jPanel.add(Exit, null);
+		
+		this.setSize(530, 800);
+		this.setContentPane(jPanel);
+		this.setTitle("SIC/XE Simulator");
+		
+		//////////////////////////////////////////////////////////
+		
+	}
+	
+	@Override
+	public void initialize(File objFile, ResourceManager_R rMgr) {
+		simulator = new SicSimulator_R();
+		simulator.initialize(objFile, rMgr);
+		index = 0;
+
+		filename.setText(objFile.getName());
+		programName.setText(rMgr.progName[index]);
+		startAddress.setText(rMgr.startAddr_string[index]);			//뭘 넣어야할지 나중에 결정
+		programLength.setText(String.format("%06X", (rMgr.progLength[0]+rMgr.progLength[1]+rMgr.progLength[2]) / 2));
+		firstInstruction.setText(rMgr.firstIR);
+		startAddress2.setText(rMgr.startAddr_string[index]);//뭘 넣어야할지 나중에 결정
+		
+		update();
+		
+	}
+
+	@Override
+	public void oneStep() {
+		simulator.oneStep();	
+		update();
+		if(rMgr.end)
+			new JOptionPane().showMessageDialog(null, "Object code running is finished");
+		instScroll.getVerticalScrollBar().setValue(instScroll.getVerticalScrollBar().getMaximum());
+		logScroll.getVerticalScrollBar().setValue(logScroll.getVerticalScrollBar().getMaximum());
+		jList.ensureIndexIsVisible(rMgr.memoryField.size());
+	}
+
+	@Override
+	public void allStep() {
+		simulator.allStep();
+		update();
+		if(rMgr.end)
+			new JOptionPane().showMessageDialog(null, "Object code running is finished");
+	}
+
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+
+		ARegDec.setText(String.format("%d", rMgr.A));
+		XRegDec.setText(String.format("%d", rMgr.X/2));
+		LRegDec.setText(String.format("%d", rMgr.L/2));
+		PCRegDec.setText(String.format("%d", rMgr.PC/2));
+		ARegHex.setText(String.format("%06X", rMgr.A));
+		XRegHex.setText(String.format("%06X", rMgr.X/2));
+		LRegHex.setText(String.format("%06X", rMgr.L/2));
+		PCRegHex.setText(String.format("%06X", rMgr.PC/2));
+		SWReg.setText(String.format("%06d", rMgr.SW));
+		
+		BRegDec.setText(String.format("%d", rMgr.B/2));
+		SRegDec.setText(String.format("%d", rMgr.S));
+		TRegDec.setText(String.format("%d", rMgr.T/2));
+		BRegHex.setText(String.format("%06X", rMgr.B/2));
+		SRegHex.setText(String.format("%06X", rMgr.S));
+		TRegHex.setText(String.format("%06X", rMgr.T/2));
+		FReg.setText(String.format("%06d", rMgr.F));
+		
+		targetAddress.setText(String.format("%06X", rMgr.TA/2));
+		currentDevice.setText(rMgr.currentDevice);
+		jList.setListData(rMgr.memoryField);
+		logList.setListData(rMgr.instField);
+		
+	}
+	
+
+}

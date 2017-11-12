@@ -1,0 +1,240 @@
+import java.io.*;
+
+public class ResourceManager implements Resource{	
+
+	private String progName[] = new String[3];
+	private String startADDR[] = new String[3];
+	private String progLength[] = new String[3];
+	private String firstIR;
+	private int sText;
+	private int TextLen;
+	//입출력을 위한 파일
+	private File inputfile = null;
+	private File outputfile = null; 
+	private FileInputStream inputStream = null;
+	private FileOutputStream outputStream = null;
+
+	private int PC;
+	private int A;
+	private int X;
+	private int L;
+	private int B;
+	private int S;
+	private int T;
+	private int F;
+	private int SW;  // (< , 1) (= , 2) (> , 3) 
+	private int TA;
+
+	public final static int MEM_SIZE = 1048576; //2의 10승 바이트의 메모리 크기를 가진다(SIC/XE)
+	StringBuffer MEM = new StringBuffer(MEM_SIZE);
+
+	//메모리 영역을 초기화 하는 메소드
+	public void initializeMemory(){
+		for(int i = 0; i < MEM_SIZE; i++){
+			MEM.insert(i, '-');
+		}
+	}
+	//각 레지스터 값을 초기화 하는 메소드
+	public void initializeRegister(){
+		PC = 0;
+		A  = 0;
+		X  = 0;
+		L  = 0;
+		B  = 0;
+		S  = 0;
+		T  = 0;
+		F  = 0;
+		SW = 0;
+		TA = 0;
+	}
+
+	//디바이스 접근에 대한 메소드
+	//디바이스는 각 이름과 매칭되는 파일로 가정한다
+	//(F1이라는 디바이스를 읽으면 F1이라는 파일에서 값을 읽는다.)
+	//해당 디바이스(파일)를 사용 가능한 상태로 만드는 메소드
+	public void initializeDevice(){
+		try{
+			inputfile = new File("F1.txt");
+			outputfile = new File("05.txt"); 
+			inputStream = new FileInputStream(inputfile);
+			outputStream = new FileOutputStream(outputfile);
+		}
+		catch(FileNotFoundException e){
+			e.printStackTrace();
+		}
+	}
+	//선택한 디바이스에 값을 쓰는 메소드, 파라메터는 변경 가능하다.
+	public FileOutputStream writeDevice(){
+		return outputStream;
+	}
+	//선택한 디바이스에서 값을 읽는 메소드, 파라메터는 변경 가능하다.
+	public FileInputStream readDevice(){
+		return inputStream;
+	}
+
+	//메모리 영역에 값을 쓰는 메소드
+	public void setMemory(int locate, String data, int size){
+		MEM.replace(locate, size, data);
+	}
+	//레지스터에 값을 세팅하는 메소드. regNum은 레지스터 종류를 나타낸다.
+	public void setRegister(int regNum, int value){
+		switch(regNum){
+		case 0:
+			A = value;
+			break;
+		case 1:
+			X = value;
+			break;
+		case 2:
+			L = value;
+			break;
+		case 3:
+			B = value;
+			break;
+		case 4:
+			S = value;
+			break;
+		case 5:
+			T = value;
+			break;
+		case 6:
+			F = value;
+			break;
+		case 7:
+			TA = value;
+			break;
+		case 8:
+			PC = value;
+			break;
+		case 9:
+			SW = value;
+			break;
+		}
+	}
+	//메모리 영역에서 값을 읽어오는 메소드
+	public int getMemory(int locate, int size){
+		return Integer.parseInt(MEM.substring(locate, size), 16);
+	}
+	//레지스터에서 값을 가져오는 메소드
+	public int getRegister(int regNum){
+		switch(regNum){
+		case 0:
+			return A;
+		case 1:
+			return X;
+		case 2:
+			return L;
+		case 3:
+			return B;
+		case 4:
+			return S;
+		case 5:
+			return T;
+		case 6:
+			return F;
+		case 7:
+			return TA;
+		case 8:
+			return PC;
+		case 9:
+			return SW;
+		}
+		return -1;
+	}
+
+	public void setProgName(String progName, int cnt){
+		this.progName[cnt] = progName;
+	}
+
+	public void setStartADDR(int cnt){
+		int result = 0;
+		for(int i = 0; i < cnt; i++){
+			result += Integer.parseInt(progLength[i], 16);
+		}
+		String line = Integer.toHexString(result).toUpperCase();
+		line = makeHex6(line);
+		this.startADDR[cnt] = line;
+	}
+
+	public void setProgLength(String progLength, int cnt){
+		this.progLength[cnt] = progLength;
+	}
+
+	public void setSText(int sText){
+		this.sText = sText;
+	}
+
+	public void setTextLen(int TextLen){
+		this.TextLen = TextLen;
+	}
+
+	public void setFirstIR(String firstIR){
+		this.firstIR = firstIR;
+	}
+
+	public String getFirstIR(){
+		return firstIR;
+	}
+
+	public int getSText(){
+		return sText;
+	}
+
+	public int getTextLen(){
+		return TextLen;
+	}
+
+	public String getProgName(int cnt){
+		return progName[cnt];
+	}
+
+	public String getStartADDR(int cnt){
+		return startADDR[cnt];
+	}
+
+	public String getProgLength(){
+		int returnVal = 0;
+		for(int i = 0; i < 3; i++){
+			returnVal += Integer.parseInt(progLength[i], 16);
+		}
+		String line = Integer.toHexString(returnVal).toUpperCase();
+		line = makeHex6(line);
+		return line;
+	}
+
+	public String makeHex6(String line){
+		while(true){
+			if(line.length() != 6){
+				String temp = new String("0");
+				line = temp + line;
+			}
+			else
+				break;
+		}
+		return line.toUpperCase();
+	}
+
+	public String makeHex5(String line){
+		while(true){
+			if(line.length() != 5){
+				String temp = new String("0");
+				line = temp + line;
+			}
+			else
+				break;
+		}
+		return line.toUpperCase();
+	}
+
+	public String makeHex2(String line){
+		while(true){
+			if(line.length() != 2){
+				String temp = new String("0");
+				line = temp + line;
+			}
+			else
+				break;
+		}
+		return line.toUpperCase();
+	}
+}

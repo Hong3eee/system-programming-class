@@ -1,0 +1,78 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Scanner;
+import java.util.StringTokenizer;
+
+class inst_unit{
+	String operator;
+	String type;
+	String opcode;
+	int operandAmount;
+}
+
+public class SicSimulator_R implements SicSimulator {
+	public SicLoader_R loader;
+	public ResourceManager_R rMgr;
+	int inst_index = 0;
+	inst_unit inst_table[] = new inst_unit[256];
+	@Override
+	public void initialize(File objFile, ResourceManager_R rMgr) {
+		this.rMgr = rMgr;
+		rMgr.initializeMemory();
+		rMgr.initializeRegister();
+		
+		loader = new SicLoader_R();
+		loader.load(objFile, rMgr);
+		
+		init_inst_file("inst.data");
+		
+	}
+
+	@Override
+	public void oneStep() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void allStep() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+
+	int init_inst_file(String inst_file)
+	{
+		int errno = 0;
+		int i = 0;
+
+		try
+		{
+			Scanner scanner = new Scanner(new File(inst_file));						
+			
+			while(scanner.hasNext()){	
+				StringTokenizer st = new StringTokenizer(scanner.nextLine(),"\t\n");		//스캐너 클래스를 이용해 한줄씩 받아옴 + 탭,개행으로 토크나이즈
+				
+				inst_table[i] = new inst_unit();
+
+				inst_table[i].operator = st.nextToken();
+				inst_table[i].type = st.nextToken();
+				inst_table[i].opcode = st.nextToken();
+				inst_table[i].operandAmount = Integer.parseInt(st.nextToken());
+				
+				inst_index = i;			//0부터 갯수 시작
+
+				i++;
+			}
+			scanner.close();
+		}
+		catch (FileNotFoundException e) {				//파일이 없으면 try catch 로 예외처리
+			System.out.println("The inst_file doesn't exist");
+			e.printStackTrace();
+			return errno = -1;
+		}
+		return errno;
+	}
+}

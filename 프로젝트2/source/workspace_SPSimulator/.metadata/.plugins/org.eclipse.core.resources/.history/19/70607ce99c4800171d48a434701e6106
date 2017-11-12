@@ -1,0 +1,324 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Scanner;
+import java.util.StringTokenizer;
+
+class inst_unit{
+	String operator;
+	String type;
+	String opcode;
+	int operandAmount;
+}
+
+public class SicSimulator_R implements SicSimulator {
+	public SicLoader_R loader;
+	public ResourceManager_R rMgr;
+	int inst_index = 0;
+	inst_unit inst_table[] = new inst_unit[256];
+	@Override
+	public void initialize(File objFile, ResourceManager_R rMgr) {
+		this.rMgr = rMgr;
+		rMgr.initializeMemory();
+		rMgr.initializeRegister();
+		
+		loader = new SicLoader_R();
+		loader.load(objFile, rMgr);
+		
+		if(init_inst_file("inst.data")==-1)		//오브젝트 코드의 명령어를 비교하기 위한 명령어 테이블 만드는 메소드 호출
+		{
+			System.out.println("Inst file Init failed!!");	
+			System.exit(0);	
+		}
+	
+		
+	}
+
+	@Override
+	public void oneStep() {
+		int index = 0;
+		int currentAddr = rMgr.getRegister(8);
+		int opcode = Integer.parseInt(rMgr.memory.substring(currentAddr , currentAddr + 2),16);	//PC ~ PC+2 만큼 짤라서 확인
+		int ni_bit = opcode & 3;	//opcode의 하위 2비트만 ni_bit로 가져옴
+		int xbpe_bit = Integer.parseInt(rMgr.memory.substring(currentAddr + 2 , currentAddr + 3),16);
+		opcode = opcode - ni_bit;
+		String opcode_string = String.format("%02X", opcode);
+
+		
+		
+		if ((index = search_opcode(opcode_string)) > -1)		//opcode가 있을때 각 토큰들에선 현재 얼마까지 읽었는지만 기록
+		{
+			if (inst_table[index].type.equals("1"))	// format 1 일 때
+			{
+				rMgr.setRegister(8, rMgr.getRegister(8)+ 1 * 2);		//다음 PC값 증가
+			}
+			else if (inst_table[index].type.equals("2")) // format 2 일 때 operand로 오는 레지스터에 따라 구분
+			{
+				rMgr.setRegister(8, rMgr.getRegister(8)+ 2 * 2);		//다음 PC값 증가
+				
+				switch(opcode) {
+				case 0xB4 :  		//CLEAR
+					rMgr.setRegister(Integer.parseInt(rMgr.memory.substring(currentAddr+2,	currentAddr+3),16), 0);
+					break;
+				case 0xA0: 			// COMPR
+					int comp1 = rMgr.getRegister(Integer.parseInt(rMgr.memory.substring(currentAddr + 2, currentAddr + 3), 16));
+					int comp2 = rMgr.getRegister(Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 4), 16));
+					if (comp1 > comp2)
+						rMgr.setRegister(9, 1);
+					if (comp1 == comp2)
+						rMgr.setRegister(9, 2);
+					if (comp1 < comp2)
+						rMgr.setRegister(9, -1);
+					break;
+				case 0xB8 :  		//TIXR
+					rMgr.setRegister(1, rMgr.getRegister(1) + 1);
+					if(rMgr.getRegister(1) > rMgr.getRegister(Integer.parseInt(rMgr.memory.substring(currentAddr + 2, currentAddr + 3), 16)))
+						rMgr.setRegister(9, 1);
+					if(rMgr.getRegister(1) == rMgr.getRegister(Integer.parseInt(rMgr.memory.substring(currentAddr + 2, currentAddr + 3), 16)))
+						rMgr.setRegister(9, 2);
+					if(rMgr.getRegister(1) < rMgr.getRegister(Integer.parseInt(rMgr.memory.substring(currentAddr + 2, currentAddr + 3), 16)))
+						rMgr.setRegister(9, -1);
+					break;
+				}
+			}
+			else if (inst_table[index].type.equals("3/4"))
+			{
+				int targetAddr=0;
+				int x_flag=0,b_flag=0,p_flag=0,e_flag=0;
+				int temp_sum = 0;
+				// target 주소를 구하기 위해  x, b, p, e flag를 설정.
+				x_flag = (xbpe_bit & 8) >> 3;
+				b_flag = (xbpe_bit & 4) >> 2;
+				p_flag = (xbpe_bit & 2) >> 1;
+				e_flag = xbpe_bit & 1;
+				
+				if( e_flag == 0){
+					rMgr.setRegister(8, rMgr.getRegister(8)+ 3 * 2);	//다음 PC값 증가
+				}
+				else if(e_flag == 1){
+					rMgr.setRegister(8, rMgr.getRegister(8)+ 4 * 2);	//다음 PC값 증가
+				}
+					
+				//Target address 설정
+				if(x_flag == 1)
+					temp_sum += rMgr.getRegister(1);		//아마도 x2 해줘야할ㄷ걸 주의
+				if(b_flag == 1)
+					temp_sum += rMgr.getRegister(3);
+				if(p_flag == 1) 
+					temp_sum += rMgr.getRegister(8);
+				
+				switch(opcode) {
+				case  0 :  //LDA
+					if (e_flag == 0)	// 3형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 6), 16) * 2;
+					else 				//4형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 8), 16) * 2;
+					targetAddr = targetAddr + temp_sum;
+					rMgr.setRegister(7, targetAddr);
+					if (ni_bit == 3) {
+						rMgr.setRegister(0, Integer.parseInt(rMgr.memory.substring(targetAddr, targetAddr + 6), 16));
+					} else if (ni_bit == 2) {
+						;
+					} else if (ni_bit == 1) { // immediate로 바로 A레지스터에 저장
+						rMgr.setRegister(0, targetAddr);
+					}
+					break;
+					
+				case 12 :  //STA
+					if (e_flag == 0)	// 3형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 6), 16) * 2;
+					else 				//4형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 8), 16) * 2;
+					targetAddr = targetAddr + temp_sum;
+					rMgr.setRegister(7, targetAddr);
+					
+					if (ni_bit == 3) {
+						rMgr.memory.replace(targetAddr, targetAddr+6, String.format("%06X",rMgr.getRegister(0)));
+					} else if (ni_bit == 2) {
+						;
+					} else if (ni_bit == 1) { 
+						;
+					}
+					break;
+				case 16 :  //STX
+					if (e_flag == 0)	// 3형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 6), 16) * 2;
+					else 				//4형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 8), 16) * 2;
+					targetAddr = targetAddr + temp_sum;
+					rMgr.setRegister(7, targetAddr);
+					
+					if (ni_bit == 3) {
+						rMgr.memory.replace(targetAddr, targetAddr+6, String.format("%06X",rMgr.getRegister(0)));
+					} else if (ni_bit == 2) {
+						;
+					} else if (ni_bit == 1) { 
+						;
+					}
+					break;
+
+				case 20 :  //STL
+					if (e_flag == 0)	// 3형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 6), 16) * 2;
+					else 				//4형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 8), 16) * 2;
+					targetAddr = targetAddr + temp_sum;
+					rMgr.setRegister(7, targetAddr);
+					
+					if (ni_bit == 3) {
+						rMgr.memory.replace(targetAddr, targetAddr+6, String.format("%06X",rMgr.getRegister(0)));
+					} else if (ni_bit == 2) {
+						;
+					} else if (ni_bit == 1) { 
+						;
+					}
+					break;
+
+				case 40 :  //COMP
+					if (e_flag == 0)	// 3형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 6), 16) * 2;
+					else 				//4형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 8), 16) * 2;
+					targetAddr = targetAddr + temp_sum;
+					rMgr.setRegister(7, targetAddr);
+					
+					if (ni_bit == 3) {
+						int comp = Integer.parseInt(rMgr.memory.substring(targetAddr, targetAddr + 6), 16);
+						if (comp > rMgr.getRegister(0))
+							rMgr.setRegister(9, 1);
+						if (comp == rMgr.getRegister(0))
+							rMgr.setRegister(9, 2);
+						if (comp < rMgr.getRegister(0))
+							rMgr.setRegister(9, -1);
+					} else if (ni_bit == 2) {
+						;
+					} else if (ni_bit == 1) { 
+						if(targetAddr > rMgr.getRegister(0))
+							rMgr.setRegister(9, 1);
+						if(targetAddr == rMgr.getRegister(0))
+							rMgr.setRegister(9, 2);
+						if(targetAddr < rMgr.getRegister(0))
+							rMgr.setRegister(9, -1);
+					}
+					break;
+				case 48 :  //JEQ
+					if (e_flag == 0)	// 3형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 6), 16) * 2;
+					else 				//4형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 8), 16) * 2;
+					targetAddr = targetAddr + temp_sum;
+					rMgr.setRegister(7, targetAddr);
+					
+					if(rMgr.getRegister(9) == 2)
+						rMgr.setRegister(8, targetAddr);
+					break;
+				case 56 :  //JLT
+					if (e_flag == 0)	// 3형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 6), 16) * 2;
+					else 				//4형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 8), 16) * 2;
+					targetAddr = targetAddr + temp_sum;
+					rMgr.setRegister(7, targetAddr);
+					
+					if(rMgr.getRegister(9) == 2)
+						rMgr.setRegister(8, targetAddr);
+					break;
+				case 60 :  //J
+					if (e_flag == 0)	// 3형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 6), 16) * 2;
+					else 				//4형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 8), 16) * 2;
+					targetAddr = targetAddr + temp_sum;
+					if(targetAddr >= (0X1000 *2) && e_flag ==0)		//3형식일때, 음수의 경우 처리
+						targetAddr = targetAddr - (0x1000 *2);
+					rMgr.setRegister(7, targetAddr);
+					
+					if (ni_bit == 3) {
+						rMgr.setRegister(8, targetAddr);
+					} else if (ni_bit == 2) {
+						rMgr.setRegister(8, Integer.parseInt(rMgr.memory.substring(targetAddr, targetAddr + 6), 16) * 2);
+					} else if (ni_bit == 1) { 
+						rMgr.setRegister(8, targetAddr);
+					}
+					break;
+				case 72 :  //JSUB
+					if (e_flag == 0)	// 3형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 6), 16) * 2;
+					else 				//4형식
+						targetAddr = Integer.parseInt(rMgr.memory.substring(currentAddr + 3, currentAddr + 8), 16) * 2;
+					targetAddr = targetAddr + temp_sum;
+					rMgr.setRegister(7, targetAddr);
+					
+					break;
+				case 76 :  //RSUB
+					
+				case 80 :  //LDCH
+					
+				case 84 :  //STCH
+					
+				case 116 :  //LDT
+					
+				case 216 :  //RD
+					
+				case 220 :  //WD
+					
+				case 224 :  //TD
+					
+				}
+			}
+		}
+	}
+
+	@Override
+	public void allStep() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+
+	int init_inst_file(String inst_file)
+	{
+		int errno = 0;
+		int i = 0;
+
+		try
+		{
+			Scanner scanner = new Scanner(new File(inst_file));						
+			
+			while(scanner.hasNext()){	
+				StringTokenizer st = new StringTokenizer(scanner.nextLine(),"\t\n");		//스캐너 클래스를 이용해 한줄씩 받아옴 + 탭,개행으로 토크나이즈
+				
+				inst_table[i] = new inst_unit();
+
+				inst_table[i].operator = st.nextToken();
+				inst_table[i].type = st.nextToken();
+				inst_table[i].opcode = st.nextToken();
+				inst_table[i].operandAmount = Integer.parseInt(st.nextToken());
+				
+				inst_index = i;			//0부터 갯수 시작
+
+				i++;
+			}
+			scanner.close();
+		}
+		catch (FileNotFoundException e) {				//파일이 없으면 try catch 로 예외처리
+			System.out.println("The inst_file doesn't exist");
+			e.printStackTrace();
+			return errno = -1;
+		}
+		return errno;
+	}
+	
+	int search_opcode(String str)	//str을 비교값으로 해서 inst_table을 모두 뒤져서 index를 찾음. 없으면 -1 리턴
+	{
+		for (int i = 0; i <= inst_index; i++)
+		{
+			if (str.equals(inst_table[i].opcode))
+				return i;
+		}
+
+		return -1;
+	}
+}

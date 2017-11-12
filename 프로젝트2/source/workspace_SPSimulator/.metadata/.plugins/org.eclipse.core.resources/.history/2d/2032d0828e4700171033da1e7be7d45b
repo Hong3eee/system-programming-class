@@ -1,0 +1,30 @@
+import java.io.File;
+
+public class SicSimulator_R implements SicSimulator {
+	public SicLoader_R loader;
+	public ResourceManager_R rMgr;
+	@Override
+	public void initialize(File objFile, ResourceManager_R rMgr) {
+		this.rMgr = rMgr;
+		rMgr.initializeMemory();
+		rMgr.initializeRegister();
+		
+		loader = new SicLoader_R();
+		loader.load(objFile, rMgr);
+		
+		System.out.println(rMgr.memory);
+	}
+
+	@Override
+	public void oneStep() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void allStep() {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

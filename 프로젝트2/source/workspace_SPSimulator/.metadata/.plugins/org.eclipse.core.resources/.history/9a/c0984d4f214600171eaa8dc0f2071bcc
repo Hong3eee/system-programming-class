@@ -1,0 +1,15 @@
+import javax.swing.JFrame;
+
+public class Main {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		GUISimulator simulator = new GUISimulator();
+		simulator.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		simulator.setLocation(200, 100);
+		simulator.setVisible(true);
+		simulator.setResizable(false);
+	}
+
+}

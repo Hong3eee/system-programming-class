@@ -1,0 +1,161 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+
+public class ResourceManager_R implements ResourceManager {
+
+	public String progName[] = new String[3];
+	public int startAddr[] = new int[3];
+	public String startAddr_string[] = new String[3];
+	public int progLength[] = new int[3];
+	public String progLength_string[] = new String[3];
+	public String firstIR;
+	public int sText;
+	public int TextLen;
+
+	public File inputfile = null;
+	public File outputfile = null;
+	public FileInputStream inputStream = null;
+	public FileOutputStream outputStream = null;
+
+	public int A;
+	public int X;
+	public int L;
+	public int PC;
+	public int SW;
+
+	public int B;
+	public int S;
+	public int T;
+	public int F;
+
+	public int TA;
+
+	public final static int MEM_SIZE = 0x100000; // XE 머신의 경우 메모리사이즈 -> 1Mbyte =
+													// 2^20 byte
+	StringBuffer memory = new StringBuffer(MEM_SIZE);
+
+	@Override
+	public void initializeMemory() {
+		for (int i = 0; i < MEM_SIZE; i++) {
+			memory.insert(i, '-');
+		}
+	}
+
+	@Override
+	public void initializeRegister() {
+		A = 0;
+		X = 0;
+		L = 0;
+		PC = 0;
+		SW = 0;
+
+		B = 0;
+		S = 0;
+		T = 0;
+		F = 0;
+
+		TA = 0;
+	}
+
+	@Override
+	public void initialDevice(String devName) {
+		try {
+			inputStream = new FileInputStream(new File("F1.txt"));
+			outputStream = new FileOutputStream(new File("05.txt"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void writeDevice(String devName, String data, int size) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public byte[] readDevice(String devName, int size) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public void setMemory(int locate, String data, int size) {
+		memory.replace(locate, size, data);
+	}
+
+	// 각 레지스터 번호에 맞게 스위치로 분기하며
+	// 그때의 각 레지스터 값을 리턴해줌. 
+	@Override
+	public void setRegister(int regNum, int value) {
+		switch (regNum) {
+		case 0:
+			A = value;
+			break;
+		case 1:
+			X = value;
+			break;
+		case 2:
+			L = value;
+			break;
+		case 3:
+			B = value;
+			break;
+		case 4:
+			S = value;
+			break;
+		case 5:
+			T = value;
+			break;
+		case 6:
+			F = value;
+			break;
+		case 7:
+			TA = value;
+			break;
+		case 8:
+			PC = value;
+			break;
+		case 9:
+			SW = value;
+			break;
+		}
+	}
+
+	@Override
+	public byte[] getMemory(int locate, int size) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	//레지스터의 값을 반환해준다
+	@Override
+	public int getRegister(int regNum) {
+		switch(regNum){
+		case 0:
+			return A;
+		case 1:
+			return X;
+		case 2:
+			return L;
+		case 3:
+			return B;
+		case 4:
+			return S;
+		case 5:
+			return T;
+		case 6:
+			return F;
+		case 7:
+			return TA;
+		case 8:
+			return PC;
+		case 9:
+			return SW;
+		}
+		return -1;			// 에러발생
+	}
+
+}

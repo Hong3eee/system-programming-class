@@ -1,0 +1,58 @@
+
+public class ResourceManager_R implements ResourceManager {
+
+	@Override
+	public void initializeMemory() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void initializeRegister() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void initialDevice(String devName) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void writeDevice(String devName, byte[] data, int size) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public byte[] readDevice(String devName, int size) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setMemory(int locate, byte[] data, int size) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setRegister(int regNum, int value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public byte[] getMemory(int locate, int size) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getRegister(byte[] data) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+}

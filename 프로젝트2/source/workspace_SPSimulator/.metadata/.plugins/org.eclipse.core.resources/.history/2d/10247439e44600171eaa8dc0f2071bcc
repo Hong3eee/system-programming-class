@@ -1,0 +1,11 @@
+import java.io.File;
+
+public class SicLoader_R implements SicLoader {
+
+	@Override
+	public void load(File objFile, ResourceManager rMgr) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

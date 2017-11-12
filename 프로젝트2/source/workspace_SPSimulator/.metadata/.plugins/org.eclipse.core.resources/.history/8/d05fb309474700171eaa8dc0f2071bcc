@@ -1,0 +1,86 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Scanner;
+
+import SicLoader.Modify;
+
+class Modify {
+	String name[] = new String[4];
+	int addr[] = new int[4];
+	int count[] = new int[4];
+	char sign[] = new char[4];
+}
+
+class Define {
+	String name[] = new String[6];
+	int addr[] = new int[6];
+}
+
+public class SicLoader_R implements SicLoader {
+	ResourceManager_R rMgr;
+//	public BufferedReader readBuffer;
+
+	Define define = new Define();
+	Modify modify[] = new Modify[3];
+
+	@Override
+	public void load(File objFile, ResourceManager_R rMgr) {
+		for(int i = 0; i < 3; i++)
+			modify[i] = new Modify();
+		
+		this.rMgr = rMgr;
+		String line;
+		int section_num = 0, d_num = 0, m_num = 0;
+
+		try {
+			Scanner readBuffer = new Scanner(objFile);
+			//readBuffer = new BufferedReader(new FileReader(objFile));
+//			line = readBuffer.readLine();
+//			while ((line = readBuffer.readLine()) != null) {
+			while(readBuffer.hasNextLine())
+			{
+				line = readBuffer.nextLine();
+			if (line.equals(""))
+					continue;
+
+				if (line.charAt(0) == 'H') {
+					rMgr.progName[section_num] = line.substring(1, 7);
+					rMgr.progLength[section_num] = line.substring(13, 19);
+					rMgr.startADDR[section_num] = line.substring(7, 13);
+
+					// System.out.println(rMgr.progName[section_num]+"
+					// "+rMgr.progLength[section_num]+"
+					// "+rMgr.startADDR[section_num]);
+				} else if (line.charAt(0) == 'E' && line.length() != 1) {
+					rMgr.firstIR = line.substring(1, 7);
+				} else if (line.charAt(0) == 'D') {
+					define.name[d_num] = line.substring(1, 7);
+					define.addr[d_num++] = Integer.parseInt(line.substring(7, 13), 16);
+					define.name[d_num] = line.substring(13, 19);
+					define.addr[d_num++] = Integer.parseInt(line.substring(19, 25), 16);
+					define.name[d_num] = line.substring(25, 31);
+					define.addr[d_num++] = Integer.parseInt(line.substring(31), 16);
+				} else if (line.charAt(0) == 'M') {
+					modify[section_num].addr[m_num] = Integer.parseInt(line.substring(1, 7), 16) * 2;
+					modify[section_num].count[m_num] = Integer.parseInt(line.substring(7, 9), 16);
+					if (line.contains("-"))
+						modify[section_num].sign[m_num] = '-';
+					else
+						modify[section_num].sign[m_num] = '+';
+					modify[section_num].name[m_num] = line.substring(10);
+					m_num++;
+				}
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}

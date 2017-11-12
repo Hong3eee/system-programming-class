@@ -1,0 +1,43 @@
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+class inst_unit{
+	String operator;
+	String type;
+	String opcode;
+	int operandAmount;
+}
+
+public class SicSimulator_R implements SicSimulator {
+	public SicLoader_R loader;
+	public ResourceManager_R rMgr;
+	@Override
+	public void initialize(File objFile, ResourceManager_R rMgr) {
+		this.rMgr = rMgr;
+		rMgr.initializeMemory();
+		rMgr.initializeRegister();
+		
+		loader = new SicLoader_R();
+		loader.load(objFile, rMgr);
+		
+	}
+
+	@Override
+	public void oneStep() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void allStep() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public void inst_set(){
+		ArrayList<String> a= new ArrayList<String>();
+		HashMap<String, Integer> b;
+	}
+
+}

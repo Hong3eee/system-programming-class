@@ -1,0 +1,90 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
+public class ResourceManager_R implements ResourceManager {
+
+	private String progName[] = new String[3];
+	private String startADDR[] = new String[3];
+	private String progLength[] = new String[3];
+	private String firstIR;
+	private int sText;
+	private int TextLen;
+	//입출력을 위한 파일
+	private File inputfile = null;
+	private File outputfile = null; 
+	private FileInputStream inputStream = null;
+	private FileOutputStream outputStream = null;
+
+	private int PC;
+	private int A;
+	private int X;
+	private int L;
+	private int B;
+	private int S;
+	private int T;
+	private int F;
+	private int SW;  // (< , 1) (= , 2) (> , 3) 
+	private int TA;
+
+	public final static int MEM_SIZE = 0x100000; //XE 머신의 경우 메모리사이즈 -> 1Mbyte = 2^20 byte 
+	StringBuffer MEMORY = new StringBuffer(MEM_SIZE);
+
+	
+	@Override
+	public void initializeMemory() {
+		// TODO Auto-generated method stub
+		for(int i = 0; i < MEM_SIZE; i++){
+			MEMORY.insert(i, '-');
+		}
+	}
+
+	@Override
+	public void initializeRegister() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void initialDevice(String devName) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void writeDevice(String devName, byte[] data, int size) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public byte[] readDevice(String devName, int size) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setMemory(int locate, byte[] data, int size) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setRegister(int regNum, int value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public byte[] getMemory(int locate, int size) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getRegister(byte[] data) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+}

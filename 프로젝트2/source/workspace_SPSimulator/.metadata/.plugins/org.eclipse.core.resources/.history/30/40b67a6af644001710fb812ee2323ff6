@@ -1,0 +1,240 @@
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.io.File;
+
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+
+public class GUISimulator extends JFrame implements VisualSimulator{
+
+	private JPanel jPanel = null;
+	private JLabel jLabel = null;
+	private JTextField filename = null;
+	private JButton fileopen = null;
+	private JLabel jLabel1 = null;
+	private JLabel jLabel2 = null;
+	private JTextField programName = null;
+	private JLabel jLabel3 = null;
+	private JTextField startAddress = null;
+	private JLabel jLabel4 = null;
+	private JTextField programLength = null;
+	private JLabel jLabel5 = null;
+	private JLabel jLabel6 = null;
+	private JTextField firstInstruction = null;
+	private JLabel jLabel7 = null;
+	private JTextField targetAddress = null;
+	private JLabel jLabel8 = null;
+	private JLabel jLabel9 = null;
+	private JLabel jLabel10 = null;
+	private JLabel jLabel11 = null;
+	private JLabel jLabel12 = null;
+	private JLabel jLabel13 = null;
+	private JTextField Ra = null;
+	private JTextField Rx = null;
+	private JTextField Rl = null;
+	private JTextField Rpc = null;
+	private JTextField Rsw = null;
+	private JLabel jLabel14 = null;
+	private JLabel jLabel15 = null;
+	private JLabel jLabel16 = null;
+	private JLabel jLabel17 = null;
+	private JTextField Rb = null;
+	private JTextField Rs = null;
+	private JTextField Rt = null;
+	private JTextField Rf = null;
+	private JScrollPane jScrollPane = null;
+	private JList jList = null;
+	private JLabel jLabel18 = null;
+	private JButton step1 = null;
+	private JButton stepAll = null;
+	private JButton Exit = null;
+	private JFileChooser open_obj = null;
+	private int index;
+	private boolean finish;
+	private JLabel jLabel19 = null;
+	private JScrollPane jScrollPane1 = null;
+	private JList logList = null;
+	
+	public GUISimulator() {
+		super();
+		initjPanel();
+	}
+	private void initjPanel() {
+		jLabel = new JLabel();
+		jLabel.setBounds(new Rectangle(11, 15, 65, 18));
+		jLabel.setText("File Name");
+		
+		jLabel1 = new JLabel();
+		jLabel1.setBounds(new Rectangle(11, 55, 135, 18));
+		jLabel1.setFont(new Font("Dialog", Font.BOLD, 14));
+		jLabel1.setText("H (Header Record)");
+		
+		jLabel2 = new JLabel();
+		jLabel2.setBounds(new Rectangle(11, 86, 92, 18));
+		jLabel2.setText("Program Name");
+		
+		jLabel3 = new JLabel();
+		jLabel3.setBounds(new Rectangle(11, 115, 84, 18));
+		jLabel3.setText("Start Address");
+		
+		jLabel4 = new JLabel();
+		jLabel4.setText("Length of Program");
+		jLabel4.setLocation(new Point(11, 144));
+		jLabel4.setSize(new Dimension(109, 18));
+		
+		jLabel5 = new JLabel();
+		jLabel5.setBounds(new Rectangle(237, 55, 109, 18));
+		jLabel5.setFont(new Font("Dialog", Font.BOLD, 14));
+		jLabel5.setText("E (End Record)");
+		
+		jLabel6 = new JLabel();
+		jLabel6.setBounds(new Rectangle(237, 86, 159, 18));
+		jLabel6.setText("Address of First Instruction");
+	
+		jLabel7 = new JLabel();
+		jLabel7.setBounds(new Rectangle(237, 115, 93, 18));
+		jLabel7.setText("Target Address");
+		
+		jLabel8 = new JLabel();
+		jLabel8.setBounds(new Rectangle(11, 198, 105, 18));
+		jLabel8.setFont(new Font("Dialog", Font.BOLD, 14));
+		jLabel8.setText("Register (HEX)");
+		
+		jLabel9 = new JLabel();
+		jLabel9.setBounds(new Rectangle(11, 228, 38, 18));
+		jLabel9.setText("A(#0)");
+		
+		jLabel10 = new JLabel();
+		jLabel10.setBounds(new Rectangle(11, 257, 38, 18));
+		jLabel10.setText("X(#1)");
+		
+		jLabel11 = new JLabel();
+		jLabel11.setBounds(new Rectangle(11, 286, 38, 18));
+		jLabel11.setText("L(#2)");
+		
+		jLabel12 = new JLabel();
+		jLabel12.setBounds(new Rectangle(11, 316, 38, 18));
+		jLabel12.setText("PC(#8)");
+		
+		jLabel13 = new JLabel();
+		jLabel13.setBounds(new Rectangle(11, 346, 46, 18));
+		jLabel13.setText("SW(#9)");
+		
+		jLabel14 = new JLabel();
+		jLabel14.setBounds(new Rectangle(121, 228, 38, 18));
+		jLabel14.setText("B(#3)");
+		
+		jLabel15 = new JLabel();
+		jLabel15.setBounds(new Rectangle(121, 257, 38, 18));
+		jLabel15.setText("S(#4)");
+	
+		jLabel16 = new JLabel();
+		jLabel16.setBounds(new Rectangle(121, 286, 38, 18));
+		jLabel16.setText("T(#5)");
+		
+		jLabel17 = new JLabel();
+		jLabel17.setBounds(new Rectangle(122, 316, 38, 18));
+		jLabel17.setText("F(#6)");
+		
+		jLabel18 = new JLabel();
+		jLabel18.setBounds(new Rectangle(237, 198, 121, 18));
+		jLabel18.setFont(new Font("Dialog", Font.BOLD, 14));
+		jLabel18.setText("Instructions");
+		
+		jLabel19 = new JLabel();
+		jLabel19.setBounds(new Rectangle(11, 418, 46, 18));
+		jLabel19.setText("LOG");
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		jPanel = new JPanel();
+		jPanel.setLayout(null);
+		jPanel.add(jLabel);
+			
+		this.setSize(513, 655);
+		this.setContentPane(jPanel);
+		this.setTitle("SIC/XE Simulator");
+			
+//			jPanel.add(getFilename(), null);
+//			jPanel.add(getFileopen(), null);
+//			jPanel.add(jLabel1, null);
+//			jPanel.add(jLabel2, null);
+//			jPanel.add(getProgramName(), null);
+//			jPanel.add(jLabel3, null);
+//			jPanel.add(getStartAddress(), null);
+//			jPanel.add(jLabel4, null);
+//			jPanel.add(getProgramLength(), null);
+//			jPanel.add(jLabel5, null);
+//			jPanel.add(jLabel6, null);
+//			jPanel.add(getFirstInstruction(), null);
+//			jPanel.add(jLabel7, null);
+//			jPanel.add(getTargetAddress(), null);
+//			jPanel.add(jLabel8, null);
+//			jPanel.add(jLabel9, null);
+//			jPanel.add(jLabel10, null);
+//			jPanel.add(jLabel11, null);
+//			jPanel.add(jLabel12, null);
+//			jPanel.add(jLabel13, null);
+//			jPanel.add(getRa(), null);
+//			jPanel.add(getRx(), null);
+//			jPanel.add(getRl(), null);
+//			jPanel.add(getRpc(), null);
+//			jPanel.add(getRsw(), null);
+//			jPanel.add(jLabel14, null);
+//			jPanel.add(jLabel15, null);
+//			jPanel.add(jLabel16, null);
+//			jPanel.add(jLabel17, null);
+//			jPanel.add(getRb(), null);
+//			jPanel.add(getRs(), null);
+//			jPanel.add(getRt(), null);
+//			jPanel.add(getRf(), null);
+//			jPanel.add(getJScrollPane(), null);
+//			jPanel.add(jLabel18, null);
+//			jPanel.add(getStep1(), null);
+//			jPanel.add(getStepAll(), null);
+//			jPanel.add(getExit(), null);
+//			jPanel.add(jLabel19, null);
+//			jPanel.add(getJScrollPane1(), null);
+
+	}
+	
+	@Override
+	public void initialize(File objFile, ResourceManager rMgr) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void oneStep() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void allStep() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+
+}
